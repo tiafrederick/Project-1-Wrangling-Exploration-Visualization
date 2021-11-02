@@ -19,7 +19,7 @@ tidy=TRUE, tidy.opts=list(width.cutoff=60), R.options=list(max.print=100))
 
 ## Data Wrangling, Exploration, Visualization
 
-### Name and EID here
+### Tia Frederick. EID: tmf977
 
 #### Introduction 
 
@@ -27,7 +27,10 @@ Paragraph or two introducing your datasets and variables, why they are interesti
 
 ```{R}
 # read your datasets in here, e.g., with read_csv()
-
+library(tidyverse)
+data1 <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/carData/Anscombe.csv")
+data2 <- read_csv("https://vincentarelbundock.github.io/Rdatasets/csv/datasets/USArrests.csv")
+glimpse(data1)
 ```
 
 #### Tidying: Reshaping
@@ -36,15 +39,124 @@ If your datasets are tidy already, demonstrate that you can reshape data with pi
 
 ```{R}
 # your tidying code (if applicable; can also wait until wrangling section)
+
+#Recall: when your data is tidy, the values of each variable fall in their own column vector. 
+
+#data1 and data2 are already tidy; therefore, I will untidy and then retidy to demonstrate how to reshape data with pivot_wider() and pivot_longer()
+
+#The original datasets:
+data1
+data2
+
+#Untidy:
+data1 <- data1 %>% pivot_wider(names_from = X1, values_from = urban )
+data2 <- data2 %>% pivot_wider(names_from = X1, values_from = UrbanPop)
+data1
+data2
+
+#The datasets are now untidy. Let's demonstrate how to retidy with pivot_longer()
+
+data1 <- data1 %>% pivot_longer(cols = ME:HI, names_to = "X1", values_to = "urban", values_drop_na = TRUE)
+data2 <- data2 %>% pivot_longer(cols = Alabama:Wyoming, names_to = "X1", values_to = "UrbanPop", values_drop_na = TRUE)
+data1
+data2
+
+#Let's move the column with the state names back to the front with the relocate() function:
+
+data1 <- data1 %>% relocate(X1, .before = education)
+data2 <- data2 %>% relocate(X1, .before = Murder)
+data1
+data2
+
+#In data2, 'UrbanPop' is now the last column. The original data2 had 'UrbanPop' as the second to last column and 'Rape' as the last column. However, the re-tidied dataset looks better with 'UrbanPop' as the last column because now the crime columns ('Murder', 'Assault', and 'Rape') are grouped together. 
+
 ```
 
     
 #### Joining/Merging
 
 ```{R}
-# your joining code
 
-# your joining code
+#data1 contains data for Washington D.C. and data2 does not. Therefore, I am dropping the 24th row in data1 which contains the data for D.C.
+data1 <- data1[!(row.names(data1) %in% "24"),]
+
+#Arrange in alphabetical order
+data1 <- data1 %>% arrange(data1)
+
+#Changing the abbreviated state names of data1 to the full names of the states so that it would match data2.
+data1[1, 1] <- "Alaska"
+data1[2, 1] <- "Alabama"
+data1[3, 1] <- "Arkansas"
+data1[4,1] <- "Arizona"
+data1[5, 1] <- "California"
+data1[6, 1] <- "Colorado"
+data1[7, 1] <- "Connecticut"
+data1[8, 1] <- "Delaware"
+data1[9, 1] <- "Florida"
+data1[10, 1] <- "Georgia"
+data1[11, 1] <- "Hawaii"
+data1[12, 1] <- "Idaho"
+data1[13, 1] <- "Illinois"
+data1[14, 1] <- "Indiana"
+data1[15, 1] <- "Iowa"
+data1[16, 1] <- "Kansas"
+data1[17, 1] <- "Kentucky"
+data1[18, 1] <- "Louisiana"
+data1[19, 1] <- "Massachusetts"
+data1[20, 1] <- "Maryland"
+data1[21, 1] <- "Maine"
+data1[22, 1] <- "Michigan"
+data1[23, 1] <- "Minnesota"
+data1[24,1] <- "Missouri"
+data1[25,1] <- "Mississippi"
+data1[26,1] <- "Montana"
+data1[27,1] <- "North Carolina"
+data1[28,1] <- "North Dakota"
+data1[29,1] <- "Nebraska"
+data1[30,1] <- "New Hampshire"
+data1[31,1] <- "New Jersey"
+data1[32,1] <- "New Mexico"
+data1[33,1] <- "Nevada"
+data1[34,1] <- "New York"
+data1[35, 1] <- "Ohio"
+data1[36, 1] <- "Oklahoma"
+data1[37, 1] <- "Oregon"
+data1[38, 1] <- "Pennsylvania"
+data1[39, 1] <- "Rhode Island"
+data1[40, 1] <- "South Carolina"
+data1[41, 1] <- "South Dakota"
+data1[42, 1] <- "Tennessee"
+data1[43, 1] <- "Texas"
+data1[44, 1] <- "Utah"
+data1[45, 1] <- "Virginia"
+data1[46, 1] <- "Vermont"
+data1[47, 1] <- "Washington"
+data1[48, 1] <- "Wisconsin"
+data1[49, 1] <- "West Virginia"
+data1[50, 1] <- "Wyoming"
+
+#Renaming the "X1" column to "States" in both datasets.
+data1 <- rename(data1, States = X1)
+data2 <- rename(data2, States = X1)
+
+#Rename "UrbanPop" column to "UrbanPercent" for more clarification and distinction from the "urban" column in data1.
+data2 <- rename(data2, "UrbanPercent" = UrbanPop)
+
+#Arrange in alphabetical order again.
+data1 <- data1 %>% arrange(data1)
+
+#Joining the two datasets
+data3 <- full_join(data1,data2)
+data3
+
+nrow(data1)
+nrow(data2)
+nrow(data3)
+ncol(data1)
+ncol(data2)
+ncol(data3)
+colnames(data1)
+colnames(data2)
 ```
 
 Discussions of joining here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
@@ -52,11 +164,104 @@ Discussions of joining here. Feel encouraged to break up into more than once cod
 ####  Wrangling
 
 ```{R}
-# your wrangling code
 
-# your wrangling code
+#Use all six core `dplyr` functions in the service of generating summary tables/statistics (14 pts)
+#filter(), mutate(), arrange(), select(), summarize(), group_by()
 
-# your wrangling code
+#Use mutate at least once to generate a variable that is a function of at least one other variable
+data3 <- data3 %>% mutate(Total_Arrests = select(., Murder, Assault, Rape) %>% rowSums(na.rm = TRUE))
+data3 %>% mutate(ratio = Total_Arrests/income)
+
+#filter()
+data3 %>% filter(UrbanPercent > 60)
+
+#Use at least one `stringr` function with to do something with regex
+data3 %>% filter(str_detect(States, "Texas"))
+
+#Select the variables 'States' and 'income' with select() and arrange income in descending order with arrange() to view the states with the highest per capita income to the lowest.
+data3 %>% select(States, income) %>% arrange(desc(income))
+
+
+#Compute summary statistics for each of your variables using `summarize` (fine to use variants such as `summarize_all`) alone and with `group_by` (if you have more than 10 variables, fine to just focus on 10 of them) (20 pts)
+
+#Use at least 5 unique functions inside of summarize (e.g., mean, sd)
+#For at least 2 functions, use summarize after grouping by a categorical variable. Create one by dichotomizing a numeric if necessary
+
+data3$high_low_UrbanPercent <- as.factor(ifelse(data3$UrbanPercent < 60, "low", "high"))
+data3
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(counts=n())
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_income = max(income, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_income = min(income, na.rm=T)) 
+data3 %>% summarize(mean_income = mean(income, na.rm=T)) 
+data3 %>% summarize(sd_income = sd(income, na.rm=T)) 
+data3 %>% summarize(median_income = median(income, na.rm=T))
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_education = max(education, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_education = min(education, na.rm=T)) 
+data3 %>% summarize(mean_education = mean(education, na.rm=T)) 
+data3 %>% summarize(sd_education = sd(education, na.rm=T)) 
+data3 %>% summarize(median_education = median(education, na.rm=T)) 
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_young = max(young, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_young = min(young, na.rm=T)) 
+data3 %>% summarize(mean_young = mean(young, na.rm=T)) 
+data3 %>% summarize(sd_young = sd(young, na.rm=T)) 
+data3 %>% summarize(median_young = median(young, na.rm=T)) 
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_urban = max(urban, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_urban = min(urban, na.rm=T)) 
+data3 %>% summarize(mean_urban = mean(urban, na.rm=T)) 
+data3 %>% summarize(sd_urban = sd(urban, na.rm=T)) 
+data3 %>% summarize(median_urban = median(urban, na.rm=T)) 
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_Murder = max(Murder, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_Murder = min(Murder, na.rm=T)) 
+data3 %>% summarize(mean_Murder = mean(Murder, na.rm=T)) 
+data3 %>% summarize(sd_Murder = sd(Murder, na.rm=T)) 
+data3 %>% summarize(median_Murder = median(Murder, na.rm=T))
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_Assault = max(Assault, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_Assualt = min(Assault, na.rm=T)) 
+data3 %>% summarize(mean_Assault = mean(Assault, na.rm=T)) 
+data3 %>% summarize(sd_Assault = sd(Assault, na.rm=T)) 
+data3 %>% summarize(median_Assault = median(Assault, na.rm=T)) 
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_UrbanPercent = max(UrbanPercent, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_UrbanPercent = min(UrbanPercent, na.rm=T)) 
+data3 %>% summarize(mean_UrbanPercent = mean(UrbanPercent, na.rm=T)) 
+data3 %>% summarize(sd_UrbanPercent = sd(UrbanPercent, na.rm=T)) 
+data3 %>% summarize(median_UrbanPercent = median(UrbanPercent, na.rm=T)) 
+
+
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(max_Rape = max(Rape, na.rm=T)) 
+data3 %>% group_by(high_low_UrbanPercent) %>% summarize(min_Rape = min(Rape, na.rm=T)) 
+data3 %>% summarize(mean_Rape = mean(Rape, na.rm=T)) 
+data3 %>% summarize(sd_Rape = sd(Rape, na.rm=T)) 
+data3 %>% summarize(median_Rape = median(Rape, na.rm=T)) 
+
+
+#For at least 2 functions, use summarize after grouping by a categorical variable. Create one by dichotomizing a numeric if necessary
+
+  #data3 %>% group_by(States) %>% summarize(mean(education/income, na.rm=T)) 
+  #data3 %>% group_by(States) %>% summarize(Total_Arrests)
+
+
+#For at least 1 function, define your own function and use it inside summarize
+#If applicable, at least 1 of these should group by two categorical variables
+#For each categorical variable, provide a table of counts for each level (e.g., by using `n()` inside `summarize` after group_by)
+
+#?datasets :: USArrests
+
+#Style at least one table with `gt` or `kable` packages (4 pts)
+
 ```
 
 Your discussion of wrangling section here. Feel encouraged to break up into more than once code chunk and discuss each in turn.
@@ -65,19 +270,23 @@ Your discussion of wrangling section here. Feel encouraged to break up into more
 #### Visualizing
 
 ```{R}
-# your plot 1
+
+ggplot(data = data3, aes(x = UrbanPercent, y = income)) + geom_point() + geom_smooth(method = "lm") + ggtitle("UrbanPercent vs Income") + xlab("UrbanPercent (Percent urban population)") + ylab("Income") + theme_light() + scale_y_continuous(labels=scales::dollar) 
+
 ```
 
 Your discussion of plot 1
 
 ```{R}
-# your plot 2
+ggplot(data3, aes(x = Total_Arrests)) + geom_bar(aes(y=States), stat="summary", width = 0.5) + scale_x_continuous(breaks=seq(0,400,50)) + theme_bw() + xlab("Total_Arrests (Crimes include Murder, Assault, Rape)") + ggtitle("Total Arrests for Each State")
+
+#ggplot(data3, aes(x = high_low_UrbanPercent, fill=States))+ geom_bar(position="fill") + scale_fill_brewer() 
 ```
 
 Your discussion of plot 2
 
 ```{R}
-# your plot 3
+ggplot(data3, aes(x=education)) + geom_histogram(aes(y=..density..), color="black", fill="white", bins=15) + geom_density(color="blue") + scale_x_continuous(labels=scales::dollar) + xlab('"Education": Per-capita education expenditures, dollars') + ggtitle("Per-capita Education Expenditures Distibution in the U.S.") + theme_dark()
 ```
 
 Your discussion of plot 3
